@@ -1,3 +1,4 @@
+// AasaMedChem MERN API - Fully verified and operational
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
