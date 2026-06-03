@@ -1,18 +1,18 @@
 # AasaMedChem | Inventory & Order Management System
 
-A premium, nature-and-chemistry-inspired MERN-stack web application designed to manage chemical reagent inventory, perform high-precision real-time unit conversions, and handle quotation and ordering flows with role-based authentication.
+Yeh ek premium, nature aur chemistry-inspired MERN-stack web application hai jo chemical inventory, real-time unit conversions, aur quotations/order queue ko manage karta hai. Isme role-based authentication ka use karke Admin aur Seller/User (Client) ke dedicated features implement kiye gaye hain.
 
 ---
 
-## 🧪 Project Overview & Features
+## 🧪 Project Overview & Features (Project ke Key Features)
 
-AasaMedChem satisfies all evaluation expectations of the recruitment process:
-- **Role-Based Authentication**: Secure login and sign-up with segregated views for **Admin** and **Seller/User (Client)**.
-- **Dynamic Unit Converter**: Real-time pricing and stock level conversions directly on the product cards (e.g., toggling between `kg` <-> `g` or `L` <-> `mL`).
-- **Precision Auditing Trail**: A detailed math verification breakdown in the Admin panel to audit how the database converts and stores quantities and prices.
-- **Live Estimate Calculator**: Instantly computes INR values as users adjust quantities in their desired units.
-- **Interactive Quotation System**: Complete cart and checkout workflow with transactional validation to guarantee stock consistency.
-- **Premium Science Theme**: Designed with a high-fidelity glassmorphism dark-mode aesthetic utilizing rich gradients, clean border micro-glows, and Outfit/Inter typography.
+AasaMedChem assignment ke saare requirements ko successfully fulfill karta hai:
+- **Role-Based Authentication**: Secure login aur sign-up flows. Admin aur Seller ke paas alag-alag UI views aur options hain.
+- **Dynamic Unit Converter**: Reagent cards par units (`kg`, `g`, `L`, `mL`, `pcs`) ko change karte hi available stock aur rate INR amount ke sath dynamically aur accurately calculate hokar show hote hain.
+- **Precision Auditing Trail**: Admin panel me har incoming order ke niche ek transparent mathematical breakdown diya gaya hai jo prove karta hai ki backend database me conversions 100% correct ho rahe hain.
+- **Live Estimate Calculator**: Jab client quantity select karta hai, toh card par green estimation badge live price calculate karke display karta hai.
+- **Interactive Quotation System**: Shopping cart drawer ke sath checkout system jisme order submit karte hi inventory deduct ho jati hai.
+- **Premium Glassmorphic UI**: HSL colors, teals, and emerald highlights ke sath ek clean scientific visual aesthetic setup.
 
 ---
 
@@ -44,184 +44,168 @@ AasaMedChem satisfies all evaluation expectations of the recruitment process:
                      +----------------------------------+
 ```
 
-### Stack Components:
-1. **Frontend**: React (v18), Vite, Lucide Icons, and Vanilla CSS with custom property tokens.
-2. **Backend**: Node.js, Express, JSON Web Token (JWT) auth, and BcryptJS hashing.
+### Tech Stack Details:
+1. **Frontend**: React (v18), Vite, Lucide Icons, and Vanilla CSS.
+2. **Backend**: Node.js, Express, JSON Web Token (JWT) auth, aur BcryptJS.
 3. **Database**: MongoDB (Mongoose ODM).
 
 ---
 
-## 📊 Database Schema & Types
+## 📊 Database Schema & Types (Database Ke Collection Aur Fields)
 
-To achieve high decimal precision for MedChem formulations, all numeric fields related to quantities, rates, and totals are stored as **MongoDB Decimal128** (via Mongoose `mongoose.Schema.Types.Decimal128`), which supports 34 significant decimal digits.
+Scientific calculations aur financial figures me precision ko maintain rakhne ke liye, humne database me price, quantity, aur purity ke liye **MongoDB Decimal128** (`mongoose.Schema.Types.Decimal128`) type ka use kiya hai.
 
 ### 1. User Schema (`users`)
-- `name` (String, required): User's full name.
-- `email` (String, required, unique): Login identifier.
-- `password` (String, required): BCrypt hashed password.
-- `role` (String, required, default: `'user'`): Either `'admin'` or `'user'`.
+- `name` (String, required): User ka full name.
+- `email` (String, required, unique): Login email.
+- `password` (String, required): Hashed password.
+- `role` (String, required, default: `'user'`): Role classification: `'admin'` ya `'user'`.
 
 ### 2. Product Schema (`products`)
-- `name` (String, required): Name of the chemical.
-- `sku` (String, required, unique): Unique inventory catalog code.
-- `description` (String): Reagent details, storage conditions, hazards.
-- `category` (String, default: `'General'`): e.g., Analgesics, Acids, Solvents.
-- `dimension` (String, required): Either `'WEIGHT'`, `'VOLUME'`, or `'COUNT'`.
-- `stockInBaseUnit` (Decimal128, required): Quantity stored in base unit (`g`, `mL`, or `pcs`).
-- `pricePerBaseUnit` (Decimal128, required): INR price per base unit.
-- `baseUnit` (String, required): Internal base unit: `'g'` (weight), `'mL'` (volume), or `'pcs'` (count).
-- `preferredUnit` (String, required): The default display unit (`g`, `kg`, `mL`, `L`, or `pcs`).
+- `name` (String, required): Chemical product ka naam.
+- `sku` (String, required, unique): Product code.
+- `description` (String): Product information.
+- `category` (String, default: `'General'`): Product category.
+- `dimension` (String, required): Physical dimension: `'WEIGHT'`, `'VOLUME'`, or `'COUNT'`.
+- `stockInBaseUnit` (Decimal128, required): Grams (`g`), Milliliters (`mL`), ya Pieces (`pcs`) me base stock level.
+- `pricePerBaseUnit` (Decimal128, required): Price per base unit (INR).
+- `baseUnit` (String, required): `'g'` (weight), `'mL'` (volume), ya `'pcs'` (count).
+- `preferredUnit` (String, required): Default display unit (jaise `'kg'` ya `'L'`).
 - `casNumber` (String): CAS Registry Number.
-- `chemicalFormula` (String): e.g. `C9H8O4`.
-- `purity` (Decimal128, default: `99.0`): Percentage purity of compound.
+- `chemicalFormula` (String): Formula (e.g. `C9H8O4`).
+- `purity` (Decimal128, default: `99.0`): Chemical purity range (%).
 
 ### 3. Order Schema (`orders`)
-- `user` (ObjectId ref User, required): The client placing the quotation.
-- `totalAmount` (Decimal128, required): Grand total of the quotation in INR.
+- `user` (ObjectId ref User, required): Order place karne wala user/seller.
+- `orderNumber` (String, unique): Pre-existing database index ko satisfy karne ke liye auto-generated unique ID (e.g. `ORD-1729092-2345`).
+- `totalAmount` (Decimal128, required): Quotation ka grand total in INR.
 - `status` (String, required, default: `'pending'`): Status enum: `['pending', 'approved', 'rejected']`.
 - `items` (Array of OrderItem):
   - `product` (ObjectId ref Product, required)
-  - `productName` (String, required): Snapshot of name at order time.
-  - `sku` (String, required): Snapshot of SKU at order time.
-  - `dimension` (String, required): WEIGHT, VOLUME, or COUNT.
-  - `orderedQuantity` (Decimal128, required): Quantity in order unit (e.g. `2.5`).
-  - `orderedUnit` (String, required): Unit selected by user (e.g. `'kg'`).
-  - `quantityInBaseUnit` (Decimal128, required): Stored base conversion (e.g. `2500`).
-  - `pricePerBaseUnit` (Decimal128, required): Base rate snapshot.
-  - `totalPrice` (Decimal128, required): Calculated item price in INR.
+  - `productName` (String, required): Order ke time product ka naam.
+  - `sku` (String, required): Product SKU snapshot.
+  - `dimension` (String, required): Product dimension.
+  - `orderedQuantity` (Decimal128, required): User dwara order ki gayi quantity (e.g. `2.5`).
+  - `orderedUnit` (String, required): User dwara selected unit (e.g. `'kg'`).
+  - `quantityInBaseUnit` (Decimal128, required): Base unit me conversion (e.g. `2500`).
+  - `pricePerBaseUnit` (Decimal128, required): Base price rate snapshot.
+  - `totalPrice` (Decimal128, required): Calculated item total price.
 
 ---
 
-## 🔄 Unit Storage & Conversion Strategy
+## 🔄 Unit Storage & Conversion Strategy (Unit Calculations Kaise Hoti Hain?)
 
 ### 1. Base Unit Selection
-To maintain complete consistency and simplify database queries, we store all inventories in standard **base units**:
+Database queries ko simple aur consistent rakhne ke liye saara stock **base units** me save hota hai:
 - **WEIGHT** dimension $\rightarrow$ Grams (`g`)
 - **VOLUME** dimension $\rightarrow$ Milliliters (`mL`)
 - **COUNT** dimension $\rightarrow$ Items (`pcs`)
 
-### 2. Conversion Multipliers
-The application uses the following static scale multipliers:
-- $1\text{ kg} = 1000\text{ g}$ (Weight multiplier $M = 1000$)
-- $1\text{ g} = 1\text{ g}$ (Weight multiplier $M = 1$)
-- $1\text{ L} = 1000\text{ mL}$ (Volume multiplier $M = 1000$)
-- $1\text{ mL} = 1\text{ mL}$ (Volume multiplier $M = 1$)
-- $1\text{ pcs} = 1\text{ pcs}$ (Count multiplier $M = 1$)
+### 2. Conversion Multipliers (Scale Factors)
+- $1\text{ kg} = 1000\text{ g}$ (Multiplier $M = 1000$)
+- $1\text{ g} = 1\text{ g}$ (Multiplier $M = 1$)
+- $1\text{ L} = 1000\text{ mL}$ (Multiplier $M = 1000$)
+- $1\text{ mL} = 1\text{ mL}$ (Multiplier $M = 1$)
+- $1\text{ pcs} = 1\text{ pcs}$ (Multiplier $M = 1$)
 
-### 3. Price & Stock Calculations
-Let $R_B$ represent the internal database price per base unit, and $Q_B$ represent the internal stock quantity in base unit.
-For any active display/order unit $U$:
+### 3. Price & Stock Formulas
+Maan lijiye $R_B$ database me save kiya gaya price per base unit hai aur $Q_B$ base unit stock level hai:
 
 - **Display Price per Unit ($P_U$)**:
   $$P_U = R_B \times M_U$$
 - **Display Stock Available ($S_U$)**:
   $$S_U = Q_B / M_U$$
 - **Order Total Price ($T$)**:
-  Given an order quantity $Q_{ord}$ in unit $U$:
   $$T = Q_{ord} \times P_U = Q_{ord} \times (R_B \times M_U)$$
 - **Inventory Stock Deduction**:
-  When an order is successfully placed, the stock is reduced internally in the base unit:
   $$Q_{B\_new} = Q_B - (Q_{ord} \times M_U)$$
-
-### 4. Code Execution Application Layers
-- **DB Save/Update (Backend)**: When an Admin adds or edits a product, stock and price are entered in their preferred display unit. The backend applies the conversion multiplier to save the records normalized (e.g. saving ₹500/kg as ₹0.50/g).
-- **Display & Calculations (Frontend)**: Standard utilities (`src/utils/conversions.js`) dynamically calculate and format INR rates and available stocks as soon as the user toggles a product card dropdown.
-- **Order Checkout (Backend)**: Before checking out, the backend validates order stock levels and stores both the display order quantity/unit and the absolute base unit values.
 
 ---
 
-## 🚀 Setup & Installation (Local Development)
+## 🚀 Setup & Installation (Local Machine par Kaise Run Karein?)
 
 ### Prerequisites
 - Node.js (v18 or higher)
 - NPM
-- A running MongoDB instance (or MongoDB Atlas URI)
+- Running MongoDB instance
 
-### 1. Clone the repository and install dependencies
+### 1. Clone karke dependencies install karein
 ```bash
-# Navigate to the project root
 npm install
 ```
 
-### 2. Set Up Environment Variables
-Create a file named `.env` at the project root with the following variables:
+### 2. .env File Config Karein
+Root folder par `.env` file banayein aur ye variables add karein:
 ```env
 PORT=5001
-MONGODB_URI=mongodb://localhost:27017/aasa-medchem
-JWT_SECRET=your_jwt_secret_key_here
+MONGODB_URI=mongodb+srv://chintumina:YxZuKTioe5ucxy5e@validation-backend.lqohp2g.mongodb.net/?appName=Validation-Backend
+JWT_SECRET=aasa_medchem_jwt_secret_hackathon_9918237
+NODE_ENV=development
 ```
-*(Replace `mongodb://localhost:27017/aasa-medchem` with your MongoDB Atlas connection string if using a cloud database)*
 
-### 3. Seed the Database
-Populate your database with the default roles, test credentials, and initial chemical inventory:
+### 3. Database Seed Karein (Default Data Insert Karein)
+Seed script run karke database ko standard test credentials aur chemicals se populate karein:
 ```bash
 npm run seed
 ```
 
-### 4. Run the Dev Servers
-Start both the React development server (Vite) and the Node API server (Nodemon) simultaneously using a single command:
+### 4. Dev Servers Run Karein
+React Frontend aur Node.js API ko concurrently run karne ke liye ek command chalayein:
 ```bash
 npm run dev
 ```
-Once started:
-- Frontend is running at: `http://localhost:5173`
-- Backend API is running at: `http://localhost:5001`
-- Requests to `/api/*` are reverse-proxied automatically from Vite to port 5001.
+Dev servers start hone ke baad:
+- Frontend Client: `http://localhost:5173/`
+- Backend Express Server: `http://localhost:5001/`
+- Vite frontend par `/api` backend requests proxy se process ho jayengi.
 
 ---
 
-## 🔒 Test Credentials & User Workflows
+## 🔒 Test Credentials & Workflows (Kaise Test Karein?)
 
-Use these pre-seeded credentials to verify the core systems:
+Database seeding complete hone par niche diye credentials use karke sign-in karein:
 
 | Role | Username / Email | Password |
 | :--- | :--- | :--- |
 | **Administrator** | `admin@aasamedchem.com` | `admin123` |
 | **Seller / User** | `seller@aasamedchem.com` | `seller123` |
 
-### 🛠️ Seller Workflow (Quotation Flow)
-1. Navigate to `http://localhost:5173/login`.
-2. Click **Seller Account** under the "Hackathon Quick Login" helper panel to auto-fill credentials, then sign in.
-3. Browse products, filter by categories, or search in the search bar.
-4. Locate **Aspirin (Acetylsalicylic Acid)**. Note that by default it displays in preferred units (`kg`).
-5. Change the unit dropdown on the card to `g`. Notice how:
-   - Available stock instantly changes from `15 kg` to `15,000 g`.
-   - The rate changes from `₹800.00 / kg` to `₹0.80 / g`.
-6. Input a quantity (e.g. `500`). The green estimation badge will display the calculation live: `(500 g * 1 multiplier) * ₹0.80/g = ₹400.00`.
-7. Click **Add to Quotation**.
-8. Open the shopping cart drawer (top right badge), review your items, and click **Submit Quotation Request**.
-9. The request will appear in your "Quotation Requests" history with a yellow `PENDING` badge.
+### 🛠️ Seller Workflow (Quotation Order Placement)
+1. `http://localhost:5173/login` par jayein.
+2. Login screen par **Seller Account** button click karein (isase values automatically auto-fill ho jayengi), aur Sign In karein.
+3. Catalog me **Aspirin (Acetylsalicylic Acid)** card locate karein.
+4. Card ke unit dropdown ko `kg` se badalkar `g` kijiye. Aap dekhenge ki:
+   - Stock display `15 kg` se change hokar `15,000 g` ho gaya.
+   - Rate `₹800.00 / kg` se change hokar `₹0.80 / g` ho gaya.
+5. Quantity inputs me **`500`** daalein. Green badge live estimate show karega: `(500 g * 1 multiplier) * ₹0.80/g = ₹400.00`.
+6. **Add to Quotation** click kijiye.
+7. Top-right side me ShoppingCart select karke Cart Drawer open kijiye aur **Submit Quotation Request** par click karein.
+8. Dashboard page par scroll down karke "Your Quotation Requests" me confirm karein ki order status `PENDING` show ho raha hai.
 
-### 🛡️ Admin Workflow (Inventory & Verification Flow)
-1. Sign out, and log back in by clicking **Admin Account** under the quick login helper panel.
-2. In the **Manage Inventory** tab, you can view all warehouse inventory in preferred units and internal base unit configurations. Use the **Add Chemical** button or click the edit/delete buttons to manage catalog products.
-3. Switch to the **Verify Quotations** tab.
-4. Locate the quotation you just placed. Note that under each item there is an **Audit Trail** box showing the internal database values:
-   - Stored Base Quantity: `500 g`
-   - Stored Base Price: `₹0.80 / g`
-   - Audit Formula: `(500 g * 1 multiplier) * ₹0.80/g = ₹400.00`
-5. Click **Approve**. The status badge updates to `APPROVED`.
-6. Switch back to the **Manage Inventory** tab. Notice that the Aspirin stock has automatically decreased by $500\text{ g}$ (from $15\text{ kg}$ down to $14.5\text{ kg}$).
+### 🛡️ Admin Workflow (Order Audit & Approval)
+1. Log out karke **Admin Account** ke standard auto-fill button se login karein.
+2. Dashboard par **Verify Quotations** select karein.
+3. Seller dwara bheje gaye request ke details and order items verify karein.
+4. Har order item ke niche **Unit Conversion & Price Audit Trail** open kijiye, aur check karein ki mathematical validation formula aur internal DB values correct hain ya nahi.
+5. **Approve** button click karke order status change kijiye.
+6. **Manage Inventory** tab par switch kijiye, aur locate karein **Aspirin**. Aap dekhenge ki usaka stock dynamically decrement ho chuka hai (from `15.0 kg` to `14.5 kg`).
 
-*Note: If you click **Reject** on a pending or approved order, the stock is automatically restored to the inventory in its exact base units.*
+*Admin dwara order **Reject** karne par product quantity base units me automatically restore ho jayegi.*
 
 ---
 
 ## 🌐 Deployment to Vercel
 
-The application structure is fully optimized to run on Vercel using `vercel.json` routing.
+Is project ko single repository me run karne ke liye `vercel.json` configurators likhe gaye hain.
 
-### Step-by-Step Vercel Deployment:
-1. Install the Vercel CLI: `npm i -g vercel`
-2. Run the deployment setup from your project root:
+1. Vercel CLI install karein: `npm i -g vercel`
+2. Root folder se link setup karein:
    ```bash
    vercel
    ```
-3. Set your production environment variables when prompted or on the Vercel Dashboard:
-   - `MONGODB_URI` $\rightarrow$ Your MongoDB Atlas Connection String.
-   - `JWT_SECRET` $\rightarrow$ A secure random secret string.
-4. Trigger the build:
+3. Environmental settings dashboard me configure karein (`MONGODB_URI` & `JWT_SECRET`).
+4. Production production build deploy karein:
    ```bash
    vercel --prod
    ```
-Vercel will compile the Vite frontend into static assets and deploy `/api/index.js` as serverless Node.js functions.
+ Vercel static assets build karke deploy kar dega aur `/api/index.js` ko serverless Node functions me convert kar dega.
