@@ -42,6 +42,11 @@ const orderSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    orderNumber: {
+      type: String,
+      unique: true,
+      default: () => 'ORD-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+    },
     items: [orderItemSchema],
     totalAmount: {
       type: mongoose.Schema.Types.Decimal128,
