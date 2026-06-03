@@ -19,6 +19,17 @@ app.use(express.urlencoded({ extended: true }));
 // Connect to DB (asynchronous connection pooling)
 connectDB().catch((err) => console.error('Database connection failed on startup:', err));
 
+// Middleware to ensure database is connected before processing any query (crucial for Serverless Vercel)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('Database connection error in middleware:', err);
+    return res.status(500).json({ message: 'Database connection failed' });
+  }
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
