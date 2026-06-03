@@ -59,6 +59,7 @@ const AdminDashboard = ({ user, showToast }) => {
   }, [formDimension]);
 
   const fetchProducts = async () => {
+    if (!user || !user.token) return;
     try {
       setLoading(true);
       const res = await fetch('/api/products', {
@@ -74,6 +75,7 @@ const AdminDashboard = ({ user, showToast }) => {
   };
 
   const fetchOrders = async () => {
+    if (!user || !user.token) return;
     try {
       setOrdersLoading(true);
       const res = await fetch('/api/orders', {

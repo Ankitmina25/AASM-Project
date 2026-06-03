@@ -40,6 +40,7 @@ const Dashboard = ({ user, cart, setCart, isCartOpen, setIsCartOpen, showToast }
   }, [user]);
 
   const fetchProducts = async () => {
+    if (!user || !user.token) return;
     try {
       setLoading(true);
       const res = await fetch(`/api/products?search=${search}&category=${selectedCategory}`, {
@@ -88,6 +89,7 @@ const Dashboard = ({ user, cart, setCart, isCartOpen, setIsCartOpen, showToast }
   }, [search, selectedCategory]);
 
   const fetchOrders = async () => {
+    if (!user || !user.token) return;
     try {
       setOrdersLoading(true);
       const res = await fetch('/api/orders', {

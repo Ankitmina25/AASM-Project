@@ -9,18 +9,13 @@ import AdminDashboard from './pages/AdminDashboard';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const App = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
-
-  // Check for stored user session on load
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
